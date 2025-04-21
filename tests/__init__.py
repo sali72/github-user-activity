@@ -1,0 +1,1 @@
+"""Tests for GitHub User Activity CLI.""" 
