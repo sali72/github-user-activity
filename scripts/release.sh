@@ -52,9 +52,15 @@ if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
     # Check if tag exists remotely
     if git ls-remote --tags origin "v$NEW_VERSION" | grep -q "v$NEW_VERSION"; then
         echo "Tag v$NEW_VERSION already exists remotely."
-        echo "Do you want to continue anyway? (y/n)"
+        echo "Do you want to recreate the tag to trigger a release? (y/n)"
         read -r response
-        if [[ "$response" != "y" ]]; then
+        if [[ "$response" == "y" ]]; then
+            echo "Deleting existing tag..."
+            git tag -d "v$NEW_VERSION"
+            git push origin ":refs/tags/v$NEW_VERSION"
+            echo "Creating new tag..."
+            git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+        else
             echo "Aborting release."
             exit 1
         fi
