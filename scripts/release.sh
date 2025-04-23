@@ -45,8 +45,27 @@ else
     git commit -m "Bump version to $NEW_VERSION"
 fi
 
-# Create tag
-git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+# Check if tag already exists
+if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
+    echo "Tag v$NEW_VERSION already exists locally."
+    
+    # Check if tag exists remotely
+    if git ls-remote --tags origin "v$NEW_VERSION" | grep -q "v$NEW_VERSION"; then
+        echo "Tag v$NEW_VERSION already exists remotely."
+        echo "Do you want to continue anyway? (y/n)"
+        read -r response
+        if [[ "$response" != "y" ]]; then
+            echo "Aborting release."
+            exit 1
+        fi
+    else
+        echo "Tag exists locally but not remotely. Will push it."
+    fi
+else
+    # Create tag
+    echo "Creating tag v$NEW_VERSION..."
+    git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+fi
 
 # Push changes and tag
 echo "Pushing changes and tag to remote..."
