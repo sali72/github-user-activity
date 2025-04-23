@@ -64,10 +64,11 @@ jobs:
       run: twine check dist/*
     
     - name: Store package artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: package-dist
         path: dist/
+        if-no-files-found: error
 
   # Continuous Deployment part (PyPI publishing)
   deploy:
@@ -77,7 +78,7 @@ jobs:
     
     steps:
     - name: Download package artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: package-dist
         path: dist/
