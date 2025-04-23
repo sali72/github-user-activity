@@ -5,7 +5,7 @@ set -e
 
 # Check if a version type is provided
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 [major|minor|patch]"
+    echo "Usage: $0 [major|minor|patch|current]"
     exit 1
 fi
 
@@ -28,14 +28,22 @@ fi
 echo "Pulling latest changes from remote..."
 git pull origin main
 
-# Bump version
-echo "Bumping $VERSION_TYPE version..."
-python scripts/bump_version.py $VERSION_TYPE
-NEW_VERSION=$(grep -oP '__version__ = "\K[^"]+' github_activity/__init__.py)
+# Get current version
+CURRENT_VERSION=$(grep -oP '__version__ = "\K[^"]+' github_activity/__init__.py)
 
-# Commit version change
-git add github_activity/__init__.py
-git commit -m "Bump version to $NEW_VERSION"
+# Bump version or use current
+if [ "$VERSION_TYPE" = "current" ]; then
+    NEW_VERSION=$CURRENT_VERSION
+    echo "Using current version: $NEW_VERSION"
+else
+    echo "Bumping $VERSION_TYPE version..."
+    python scripts/bump_version.py $VERSION_TYPE
+    NEW_VERSION=$(grep -oP '__version__ = "\K[^"]+' github_activity/__init__.py)
+    
+    # Commit version change
+    git add github_activity/__init__.py
+    git commit -m "Bump version to $NEW_VERSION"
+fi
 
 # Create tag
 git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
