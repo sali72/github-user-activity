@@ -211,3 +211,7 @@ ENV/
 *.swo
 *~
 .qodo
+
+# Benchmarks
+benchmarks/
+benchmark_*
