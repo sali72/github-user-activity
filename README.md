@@ -8,6 +8,7 @@ A command-line tool to fetch and display recent activity of a GitHub user.
 - Display activity in a human-readable format
 - Handle errors gracefully
 - Limit the number of events displayed
+- Redis-based caching (optional)
 
 ## Installation
 
@@ -57,11 +58,23 @@ Recent activity for GitHub user 'octocat':
 - Starred microsoft/vscode
 ```
 
+## Caching
+
+This application includes Redis-based caching for GitHub API responses. This feature was implemented primarily for learning purposes and to demonstrate integrating external services.
+
+**Note:** Redis is completely optional. The application works perfectly fine without Redis installed - it will simply make a new API request each time instead of using cached data. The design demonstrates how to implement optional dependencies in a way that gracefully degrades when they're not available.
+
+If you want to use the caching feature:
+1. Install Redis on your system
+2. Make sure Redis server is running locally on the default port (6379)
+3. Install the Redis Python client: `pip install redis`
+
 ## Development
 
 ### Requirements
 
 - Python 3.6+
+- Redis (optional) - for caching GitHub API responses
 
 ### Setup Development Environment
 
