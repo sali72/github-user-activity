@@ -5,6 +5,9 @@ import urllib.error
 import json
 from typing import Dict, List, Any
 
+# Import our simple cache functions
+from github_activity.cache import get as cache_get, set as cache_set
+
 
 def fetch_user_events(username: str) -> List[Dict[str, Any]]:
     """
@@ -19,6 +22,12 @@ def fetch_user_events(username: str) -> List[Dict[str, Any]]:
     Raises:
         ValueError: If the username is invalid or the API request fails
     """
+    # Try to get data from cache first
+    cached_data = cache_get(username)
+    if cached_data is not None:
+        return cached_data
+    
+    # If not in cache, fetch from GitHub API
     url = f"https://api.github.com/users/{username}/events"
     headers = {
         "User-Agent": "GitHub-User-Activity-CLI",
@@ -29,7 +38,12 @@ def fetch_user_events(username: str) -> List[Dict[str, Any]]:
         req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req) as response:
             if response.status == 200:
-                return json.loads(response.read().decode("utf-8"))
+                events = json.loads(response.read().decode("utf-8"))
+                
+                # Store in cache for future requests
+                cache_set(username, events)
+                
+                return events
             else:
                 raise ValueError(f"Failed to fetch events: HTTP {response.status}")
     except urllib.error.HTTPError as e:
